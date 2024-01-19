@@ -3,6 +3,7 @@ package org.gotomove.flashsale.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.gotomove.flashsale.exception.GlobalException;
 import org.gotomove.flashsale.mapper.UserMapper;
 import org.gotomove.flashsale.pojo.User;
 import org.gotomove.flashsale.service.IUserService;
@@ -35,22 +36,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         log.info("{}", loginVo);
         String mobile = loginVo.getMobile();
         String password = loginVo.getPassword();
-        if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(password)) {
-            return RespBean.error(RespBeanEnum.LOGIN_ERROR);
-        }
-        if (!ValidatorUtil.isMobile(mobile)) {
-            return RespBean.error(RespBeanEnum.MOBILE_ERROR);
-        }
+        // 参数校验
+//        if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(password)) {
+//            return RespBean.error(RespBeanEnum.LOGIN_ERROR);
+//        }
+//        if (!ValidatorUtil.isMobile(mobile)) {
+//            return RespBean.error(RespBeanEnum.MOBILE_ERROR);
+//        }
         User user = userMapper.selectById(mobile);
         if (user == null) {
-            return RespBean.error(RespBeanEnum.LOGIN_ERROR);
+            throw new GlobalException(RespBeanEnum.LOGIN_ERROR);
         }
         String pwd = user.getPassword();
         String salt = user.getSalt();
-        if (pwd.equals(MD5Util.fromPassToDBPass(password, salt))) {
-            return RespBean.success();
-        }else{
-            return RespBean.error(RespBeanEnum.LOGIN_ERROR);
+        if (!pwd.equals(MD5Util.fromPassToDBPass(password, salt))) {
+            throw new GlobalException(RespBeanEnum.LOGIN_ERROR);
+
         }
+        return RespBean.success();
     }
 }
