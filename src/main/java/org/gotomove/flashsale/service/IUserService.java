@@ -1,7 +1,9 @@
-package org.gotomove.flashsale.server;
+package org.gotomove.flashsale.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.gotomove.flashsale.pojo.User;
+import org.gotomove.flashsale.vo.LoginVo;
+import org.gotomove.flashsale.vo.RespBean;
 
 /**
  * <p>
@@ -13,4 +15,6 @@ import org.gotomove.flashsale.pojo.User;
  */
 public interface IUserService extends IService<User> {
 
+    // 登录
+    RespBean doLogin(LoginVo loginVo);
 }

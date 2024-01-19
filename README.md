@@ -135,3 +135,192 @@ public static String fromPassToDBPass(String fromPass, String salt){
 
 ## 006 逆向工程
 
+## 007 功能开发前期准备
+
+本章节主要介绍了login的前端，以及post返回的结果
+
+前端利用thymeleaf
+```html
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+<body>
+<form name="loginForm" id="loginForm" method="post" style="width:50%; margin:0 auto">
+
+    <h2 style="text-align:center; margin-bottom: 20px">用户登录</h2>
+
+    <div class="form-group">
+        <div class="row">
+            <label class="form-label col-md-4">请输入手机号码</label>
+            <div class="col-md-5">
+                <input id="mobile" name="mobile" class="form-control" type="text" placeholder="手机号码" required="true"
+                />
+                <!--             取消位数限制          minlength="11" maxlength="11"-->
+            </div>
+            <div class="col-md-1">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            <label class="form-label col-md-4">请输入密码</label>
+            <div class="col-md-5">
+                <input id="password" name="password" class="form-control" type="password" placeholder="密码"
+                       required="true"
+                />
+                <!--             取消位数限制            minlength="6" maxlength="16"-->
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <button class="btn btn-primary btn-block" type="reset" onclick="reset()">重置</button>
+        </div>
+        <div class="col-md-5">
+            <button class="btn btn-primary btn-block" type="submit" onclick="login()">登录</button>
+        </div>
+    </div>
+</form>
+</body>
+<script>
+    function login() {
+        $("#loginForm").validate({
+            submitHandler: function (form) {
+                doLogin();
+            }
+        });
+    }
+
+    function doLogin() {
+        g_showLoading();
+
+        var inputPass = $("#password").val();
+        var salt = g_passsword_salt;
+        var str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
+        var password = md5(str);
+
+        $.ajax({
+            url: "/login/doLogin",
+            type: "POST",
+            data: {
+                mobile: $("#mobile").val(),
+                password: password
+            },
+            success: function (data) {
+                layer.closeAll();
+                if (data.code == 200) {
+                    layer.msg("成功");
+                    console.log(data);
+                    document.cookie = "userTicket=" + data.object;
+                    window.location.href = "/goods/toList";
+                } else {
+                    layer.msg(data.message);
+                }
+            },
+            error: function () {
+                layer.closeAll();
+            }
+        });
+    }
+</script>
+</html>
+```
+
+后端介绍了post返回结果，利用一个enum类型来定义有返回结果的代码和消息
+
+```java
+package org.gotomove.flashsale.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
+/**
+ * @Author zhang
+ * @Date 2024/1/19
+ * @Description 公共返回对象枚举
+ */
+
+@Getter
+@ToString
+@AllArgsConstructor
+public enum RespBeanEnum {
+    SUCCESS(200, "SUCCESS"),
+    ERROR(500, "服务端异常");
+
+    private final Integer code;
+    private final String message;
+}
+
+```
+
+再设置一个类来响应返回结果
+```java
+package org.gotomove.flashsale.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * @Author zhang
+ * @Date 2024/1/19
+ * @Description 公共返回对象
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RespBean {
+    private Integer code;
+    private String message;
+    private Object obj;
+
+    // 成功返回结果
+    public static RespBean success() {
+        return new RespBean(RespBeanEnum.SUCCESS.getCode(), RespBean.success().getMessage(), null);
+    }
+
+    // 成功返回结果
+    public static RespBean success(Object obj) {
+        return new RespBean(RespBeanEnum.SUCCESS.getCode(), RespBean.success().getMessage(), obj);
+    }
+
+    // 失败返回结果
+    public static RespBean error(RespBeanEnum respBeanEnum) {
+        return new RespBean(respBeanEnum.getCode(), respBeanEnum.getMessage(), null);
+    }
+
+    // 失败返回结果
+    public static RespBean error(RespBeanEnum respBeanEnum, Object obj) {
+        return new RespBean(respBeanEnum.getCode(), respBeanEnum.getMessage(), obj);
+    }
+}
+
+```
+
+**关于为什么成功没有枚举类型的参数而失败有的原因**
+> 成功的code只有一个，但是失败有多种，且原因各不相同，所以要想获取具体的失败原因，就得获取具体的枚举参数
+
+## 008 开发登录功能
+
+利用前端传过来的手机号和密码，进行验证是否已经存在数据库中

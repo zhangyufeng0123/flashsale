@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("org.gotomove.flashsale.pojo")
+@MapperScan("org.gotomove.flashsale.mapper")
 public class FlashsaleApplication {
 
     public static void main(String[] args) {
