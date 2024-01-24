@@ -1,5 +1,7 @@
 package org.gotomove.flashsale.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.gotomove.flashsale.service.IUserService;
@@ -29,8 +31,8 @@ public class LoginController {
 
     @RequestMapping("/doLogin")
     @ResponseBody
-    public RespBean doLogin(@Valid LoginVo loginVo) {
+    public RespBean doLogin(@Valid LoginVo loginVo, HttpServletRequest request, HttpServletResponse response) {
         log.info("{}", loginVo);
-        return userService.doLogin(loginVo);
+        return userService.doLogin(loginVo, request, response);
     }
 }
