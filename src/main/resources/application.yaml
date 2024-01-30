@@ -27,6 +27,19 @@ spring:
       # ????
       connection-test-query: SELECT 1
 
+  data:
+    redis:
+      host: 175.24.181.203
+      port: 6379
+      database: 0
+      connect-timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: 10000ms
+          max-idle: 200
+          min-idle: 5
+
 # mybatis plus ??
 mybatis-plus:
   # ?? Mapper.xml ????

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Slf4j
 public class LoginController {
     @Autowired
-    private IUserService userService;
+    private IUserService iUserService;
 
     @RequestMapping("/toLogin")
     public String toLogin(){
@@ -33,6 +33,6 @@ public class LoginController {
     @ResponseBody
     public RespBean doLogin(@Valid LoginVo loginVo, HttpServletRequest request, HttpServletResponse response) {
         log.info("{}", loginVo);
-        return userService.doLogin(loginVo, request, response);
+        return iUserService.doLogin(loginVo, request, response);
     }
 }

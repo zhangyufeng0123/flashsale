@@ -1,12 +1,22 @@
 package org.gotomove.flashsale.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.gotomove.flashsale.pojo.Goods;
 import org.gotomove.flashsale.pojo.User;
+import org.gotomove.flashsale.service.IGoodsService;
+import org.gotomove.flashsale.service.IUserService;
+import org.gotomove.flashsale.vo.GoodsVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.Date;
 
 /**
  * @Author zhang
@@ -16,25 +26,52 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/goods")
 public class GoodsController {
+
+    @Autowired
+    private IUserService iUserService;
+
+    @Autowired
+    private IGoodsService iGoodsService;
+
+    @RequestMapping("/toList")
+    public String toList(Model model, User user) {
+        if (user == null) {
+            throw new RuntimeException("用户信息为空");
+        }
+        model.addAttribute("user", user);
+        model.addAttribute("goodsList", iGoodsService.findGoodsVo());
+        return "goodsList";
+    }
+
     /**
-     * 跳转商品页面
-     * @param session
-     * @param model
-     * @param ticket cookie值
+     * 跳转商品详情页面
+     * @param GoodsId
      * @return
      */
-    @RequestMapping("/toList")
-    public String toList(HttpSession session, Model model, @CookieValue("userTicket") String ticket) {
-        // 判断cookie 是否为空
-        if (StringUtils.isEmpty(ticket)) {
-            return "login";
-        }
-        User user = (User) session.getAttribute(ticket);
-        if (user == null) {
-            return "login";
-        }
-        // 将用户信息传到前端页面中
+    @RequestMapping("/toDetail/{GoodsId}")
+    public String toDetail(Model model, User user, @PathVariable Long GoodsId) {
         model.addAttribute("user", user);
-        return "goodsList";
+        // 获取货物信息
+        GoodsVo goodsVo = iGoodsService.findGoodsVoByGoodsId(GoodsId);
+        model.addAttribute("goods", goodsVo);
+        Date startDate = goodsVo.getStartTime();
+        Date endDate = goodsVo.getEndTime();
+        Date nowDate = new Date();
+        System.out.println(startDate + " " + endDate + " " + nowDate);
+        // 秒杀状态 0 秒杀未开始，1 秒杀进行时 2 秒杀已结束
+        int flashSaleStatus = 0;
+        // 剩余时间
+        int remainSeconds = 0;
+        if (nowDate.before(startDate)) {
+            remainSeconds = (int) ((startDate.getTime() - nowDate.getTime()) / 10000);
+        } else if (nowDate.after(endDate)) {
+            flashSaleStatus = 2;
+            remainSeconds = -1;
+        } else {
+            flashSaleStatus = 1;
+        }
+        model.addAttribute("remainSeconds", remainSeconds);
+        model.addAttribute("flashSaleStatus", flashSaleStatus);
+        return "goodsDetail";
     }
 }

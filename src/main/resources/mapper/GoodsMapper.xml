@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gotomove.flashsale.mapper.GoodsMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, goods_name, goods_title, goods_img, goods_detail, goods_price, goods_stock
+    </sql>
+
+    <!-- 获取商品列表 -->
+    <select id="findGoodsVo" resultType="org.gotomove.flashsale.vo.GoodsVo">
+        select
+            tg.id ,
+            tg.goods_name ,
+            tg.goods_title ,
+            tg.goods_img ,
+            tg.goods_detail ,
+            tg.goods_price ,
+            tg.goods_stock ,
+            tfg.flashsale_price ,
+            tfg.stock_count ,
+            tfg.start_time ,
+            tfg.end_time
+        from
+            t_goods tg
+                left join
+            t_flashsale_goods tfg on tg.id = tfg.goods_id
+    </select>
+
+    <!-- 根据货物id获取货物详情 -->
+    <select id="findGoodsVoByGoodsId" parameterType="Long" resultType="org.gotomove.flashsale.vo.GoodsVo">
+        select
+            tg.id ,
+            tg.goods_name ,
+            tg.goods_title ,
+            tg.goods_img ,
+            tg.goods_detail ,
+            tg.goods_price ,
+            tg.goods_stock ,
+            tfg.flashsale_price ,
+            tfg.stock_count ,
+            tfg.start_time ,
+            tfg.end_time
+        from
+            t_goods tg
+                left join
+            t_flashsale_goods tfg on tg.id = tfg.goods_id
+        where
+            tg.id = #{goodsId}
+    </select>
+</mapper>
