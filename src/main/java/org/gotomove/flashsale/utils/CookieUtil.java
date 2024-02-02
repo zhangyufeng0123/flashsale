@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @Author zhang
@@ -31,20 +32,16 @@ public final class CookieUtil {
             return null;
         }
         String retValue = null;
-        try {
-            // 遍历 cookieList 列表
-            for (int i = 0; i < cookieList.length; i++) {
-                if (cookieList[i].getName().equals(cookieName)) {
-                    if (isDecoder) {
-                        retValue = URLDecoder.decode(cookieList[i].getValue(), "UTF-8");
-                    } else {
-                        retValue = cookieList[i].getValue();
-                    }
-                    break;
+        // 遍历 cookieList 列表
+        for (Cookie cookie : cookieList) {
+            if (cookie.getName().equals(cookieName)) {
+                if (isDecoder) {
+                    retValue = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+                } else {
+                    retValue = cookie.getValue();
                 }
+                break;
             }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
         return retValue;
     }
