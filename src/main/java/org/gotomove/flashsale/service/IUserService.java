@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.gotomove.flashsale.pojo.User;
 import org.gotomove.flashsale.vo.LoginVo;
 import org.gotomove.flashsale.vo.RespBean;
+import org.gotomove.flashsale.vo.RespBeanEnum;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,4 +25,7 @@ public interface IUserService extends IService<User> {
 
     // 根据cookie获取用户
     User getUserByCookie(HttpServletRequest request, HttpServletResponse response, String userTicket);
+
+    // 更新密码
+    RespBean updatePassword(String userTicket, Long id, String password);
 }

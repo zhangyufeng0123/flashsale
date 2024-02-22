@@ -82,6 +82,4 @@ public class Order implements Serializable {
      * 订单支付时间
      */
     private Date payTime;
-
-
 }

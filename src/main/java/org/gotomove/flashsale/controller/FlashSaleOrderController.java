@@ -14,6 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/flashsale-order")
-public class FlashsaleOrderController {
+public class FlashSaleOrderController {
 
 }

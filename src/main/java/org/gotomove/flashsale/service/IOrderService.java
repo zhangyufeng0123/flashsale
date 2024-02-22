@@ -5,6 +5,7 @@ import org.gotomove.flashsale.pojo.Goods;
 import org.gotomove.flashsale.pojo.Order;
 import org.gotomove.flashsale.pojo.User;
 import org.gotomove.flashsale.vo.GoodsVo;
+import org.gotomove.flashsale.vo.OrderDetailVo;
 
 /**
  * <p>
@@ -16,4 +17,12 @@ import org.gotomove.flashsale.vo.GoodsVo;
  */
 public interface IOrderService extends IService<Order> {
     Order flashSale(User user, GoodsVo goodsVo);
+
+    OrderDetailVo detail(Long orderId);
+
+    boolean checkPath(User user, Long goodsId, String path);
+
+    String createPath(User user, Long goodsId);
+
+    boolean checkCaptcha(User user, Long goodsId, String captcha);
 }

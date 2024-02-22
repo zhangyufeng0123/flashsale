@@ -15,7 +15,7 @@ import java.util.List;
  * @Description MVC配置类
  */
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired

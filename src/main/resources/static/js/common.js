@@ -30,3 +30,4 @@ Date.prototype.format = function (format) {
 	}
 	return format;
 };
+
